@@ -6,12 +6,11 @@
 //! - `sparse-dynamic.vhdx`: 8 MiB; first MiB from FIN-WKS-07, last MiB a
 //!   byte pattern, zeros in between (unallocated blocks), SHA-256 `a527222e…1c1c`.
 
-use std::fmt::Write as _;
 use std::fs::File;
 use std::io::{BufReader, Read, Seek, SeekFrom};
 
+use common::sha256::{hex, Sha256};
 use disk::{partitions, NtfsVolume, Scheme};
-use sha2::{Digest, Sha256};
 use vhdx::Vhdx;
 
 const FIN_WKS_07_SHA256: &str = "67fb9a797f92d66d444a0bfcf3521f9060da3050fcfb6f37cbdc5af4dffe3ebe";
@@ -25,12 +24,7 @@ fn open(name: &str) -> Vhdx<BufReader<File>> {
 }
 
 fn sha256_hex(bytes: &[u8]) -> String {
-    Sha256::digest(bytes)
-        .iter()
-        .fold(String::new(), |mut hex, b| {
-            let _ = write!(hex, "{b:02x}");
-            hex
-        })
+    hex(&Sha256::digest(bytes))
 }
 
 fn read_all(disk: &mut impl Read) -> Vec<u8> {

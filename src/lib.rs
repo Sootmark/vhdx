@@ -10,11 +10,10 @@
 //! log: it reports the condition with [`Vhdx::has_pending_log`] so intake can
 //! flag the evidence, and reads the blocks as they are on disk.
 
-mod crc32c;
-
 use std::io::{self, Read, Seek, SeekFrom};
 
 use common::bytes::Reader;
+use common::checksum::Crc32c;
 
 const KIB: u64 = 1024;
 const MIB: u64 = 1024 * KIB;
@@ -389,13 +388,21 @@ fn read_bat<R: Read + Seek>(
         .collect())
 }
 
+/// Whether the CRC-32C stored at [`CHECKSUM_OFFSET`] matches the structure,
+/// computed with the checksum field itself read as zero.
 fn checksum_ok(bytes: &[u8]) -> bool {
-    let stored = u32::from_le_bytes(
-        bytes[CHECKSUM_OFFSET..CHECKSUM_OFFSET + 4]
-            .try_into()
-            .expect("4 bytes"),
-    );
-    crc32c::checksum_with_hole(bytes, CHECKSUM_OFFSET) == stored
+    let field = CHECKSUM_OFFSET..CHECKSUM_OFFSET + 4;
+    let stored = u32::from_le_bytes([
+        bytes[field.start],
+        bytes[field.start + 1],
+        bytes[field.start + 2],
+        bytes[field.start + 3],
+    ]);
+    let mut crc = Crc32c::new();
+    crc.update(&bytes[..field.start]);
+    crc.update(&[0; 4]);
+    crc.update(&bytes[field.end..]);
+    crc.finalize() == stored
 }
 
 fn read_at<R: Read + Seek>(inner: &mut R, offset: u64, len: usize) -> io::Result<Vec<u8>> {
