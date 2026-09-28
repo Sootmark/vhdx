@@ -4,7 +4,7 @@
 use std::io::{Cursor, Read};
 
 use proptest::prelude::*;
-use vhdx::Vhdx;
+use sootmark_vhdx::Vhdx;
 
 const FIXTURE: &[u8] = include_bytes!("fixtures/sparse-dynamic.vhdx");
 /// Headers, region tables, and the start of the metadata and BAT regions:

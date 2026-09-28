@@ -11,7 +11,7 @@ use std::io::{BufReader, Read, Seek, SeekFrom};
 
 use common::sha256::{hex, Sha256};
 use disk::{partitions, NtfsVolume, Scheme};
-use vhdx::Vhdx;
+use sootmark_vhdx::Vhdx;
 
 const FIN_WKS_07_SHA256: &str = "67fb9a797f92d66d444a0bfcf3521f9060da3050fcfb6f37cbdc5af4dffe3ebe";
 const FIN_WKS_07_SIZE: u64 = 1_802_240;

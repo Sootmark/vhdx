@@ -2,8 +2,13 @@
 
 Read-only VHDX virtual disks (the container KAPE writes with `--vhdx`), exposed as a `Read + Seek` stream so partition and file-system readers use them like raw images. Written from the specification (MS-VHDX); the only runtime dependency is [`Sootmark/common`](https://github.com/Sootmark/common).
 
+```toml
+[dependencies]
+sootmark-vhdx = "0.1"
+```
+
 ```rust
-let mut disk = vhdx::Vhdx::open(std::io::BufReader::new(std::fs::File::open("WS-042.vhdx")?))?;
+let mut disk = sootmark_vhdx::Vhdx::open(std::io::BufReader::new(std::fs::File::open("WS-042.vhdx")?))?;
 if disk.has_pending_log() {
     eprintln!("warning: the VHDX was not closed cleanly; reading blocks as they are on disk");
 }
